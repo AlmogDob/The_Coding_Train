@@ -29,6 +29,7 @@ void update(void);
 void render(void);
 void destroy_window(void);
 void fix_framerate(void);
+void show_mat(SDL_Renderer * renderer, Mat m);
 
 SDL_Window *window = NULL;
 SDL_Renderer *renderer = NULL;
@@ -41,6 +42,13 @@ SDL_Color white_color;
 int game_is_running = 0;
 float delta_time;
 float fps = 0;
+
+SDL_Color fps_color;
+
+float scale = 2;
+float damping = 0.9;
+Mat buffer1, buffer2, temp;
+int rows, cols;
 
 int main()
 {
@@ -106,10 +114,29 @@ void setup(void)
     white_color.g = 255;
     white_color.r = 255;
 
+    fps_color = white_color;
+
     fps_place.x = 10;
     fps_place.y = 10;
     fps_place.w = 125;
     fps_place.h = 25;
+
+    /*-----------------------------------*/
+
+    // fps_color.a = 255;
+    // fps_color.b = 113;
+    // fps_color.g = 179;
+    // fps_color.r = 60;
+
+    rows = WINDOW_WIDTH/scale;
+    cols = WINDOW_HEIGHT/scale;
+
+    buffer1 = mat_alloc(rows, cols);
+    buffer2 = mat_alloc(rows, cols);
+    temp = mat_alloc(rows, cols);
+
+    mat_fill(buffer1, 0);
+    mat_rand(buffer1, 0, 1);
 
 }
 
@@ -138,12 +165,14 @@ void update(void)
 
     char fps_count[100];
     sprintf(fps_count, "FPS = %8.4g", fps);
-    text_surface = TTF_RenderText_Solid(font, fps_count,white_color);
+    text_surface = TTF_RenderText_Solid(font, fps_count,fps_color);
 
     text_texture = SDL_CreateTextureFromSurface(renderer,text_surface);
     SDL_FreeSurface(text_surface);
 
     /*----------------------------------------------------------------------------*/
+
+    
 }
 
 void render(void)
@@ -152,6 +181,7 @@ void render(void)
     SDL_RenderClear(renderer);
     /*------------------------------------------------------------------------*/
 
+    show_mat(renderer, buffer1);
 
 
 
@@ -179,4 +209,21 @@ void fix_framerate(void)
     }
     delta_time = (SDL_GetTicks() - previous_frame_time) / 1000.0f;
     previous_frame_time = SDL_GetTicks();
+}
+
+void show_mat(SDL_Renderer * renderer, Mat m)
+{
+    SDL_Rect rect;
+    for (int row = 0; row < rows; row++) {
+        for (int col = 0; col < cols; col++) {
+            float value = MAT_AT(m, row, col);
+            SDL_SetRenderDrawColor(renderer, 255 * value, 255 * value, 255 * value, 255);
+            rect.x = col * scale;
+            rect.y = row * scale;
+            rect.h = scale;
+            rect.w = scale;
+            // SDL_RenderDrawPoint(renderer, row * scale, col * scale);
+            SDL_RenderFillRect(renderer, &rect);
+        }
+    }
 }
