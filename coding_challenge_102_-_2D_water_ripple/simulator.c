@@ -42,6 +42,10 @@ SDL_Color white_color;
 int game_is_running = 0;
 float delta_time;
 float fps = 0;
+int space_bar_was_pressed = 0;
+int to_render = 1;
+int to_update = 1;
+Uint32 previous_frame_time = 0;
 
 SDL_Color fps_color;
 
@@ -59,8 +63,13 @@ int main()
 
     while (game_is_running) {
         process_input();
-        update();
-        render();        
+        if (to_update) {
+            update();
+        }
+        if (to_render) {
+            render();
+        }
+        
     }
 
     destroy_window();
@@ -138,6 +147,12 @@ void setup(void)
     mat_fill(buffer1, 0);
     mat_rand(buffer1, 0, 1);
 
+    for (int x = 0; x < rows; x++) {
+        for (int y = 0; y < cols; y++) {
+            MAT_AT(buffer2, y, x) = MAT_AT(buffer1, y, x);
+        }
+    }
+
 }
 
 void process_input(void)
@@ -151,6 +166,21 @@ void process_input(void)
             case SDL_KEYDOWN:
                 if (event.key.keysym.sym == SDLK_ESCAPE) {
                     game_is_running = 0;
+                }
+                if (event.key.keysym.sym == SDLK_SPACE) {
+                    if (!space_bar_was_pressed) {
+                        to_render = 0;
+                        to_update = 0;
+                        space_bar_was_pressed = 1;
+                        break;
+                    }
+                    if (space_bar_was_pressed) {
+                        to_render = 1;
+                        to_update = 1;
+                        previous_frame_time = SDL_GetTicks();
+                        space_bar_was_pressed = 0;
+                        break;
+                    }
                 }
                 break;
         }
@@ -172,7 +202,20 @@ void update(void)
 
     /*----------------------------------------------------------------------------*/
 
-    
+    for (int x = 1; x < rows -1; x++) {
+        for (int y = 1; y < cols -1; y++) {
+            MAT_AT(buffer2, y, x) = (MAT_AT(buffer1, y-1, x) + 
+                                     MAT_AT(buffer1, y+1, x) + 
+                                     MAT_AT(buffer1, y, x+1) + 
+                                     MAT_AT(buffer1, y, x-1)) / 2 - MAT_AT(buffer2, y, x);
+            MAT_AT(buffer2, y, x) = MAT_AT(buffer2, y, x) * damping;
+        }
+    }
+    temp = buffer1;
+    buffer1 = buffer2;
+    buffer2 = temp;
+
+
 }
 
 void render(void)
@@ -201,7 +244,6 @@ void destroy_window(void)
 
 void fix_framerate(void)
 {
-    static Uint32 previous_frame_time = 0;
     int time_ellapsed = SDL_GetTicks() - previous_frame_time;
     int time_to_wait = FRAME_TARGET_TIME - time_ellapsed;
     if (time_to_wait > 0 && time_to_wait < FRAME_TARGET_TIME) {
