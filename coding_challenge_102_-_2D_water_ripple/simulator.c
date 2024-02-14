@@ -13,9 +13,9 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_ttf.h>
 
-#define WINDOW_WIDTH 512
-#define WINDOW_HEIGHT 512
-#define FPS 30
+#define WINDOW_WIDTH 800
+#define WINDOW_HEIGHT 800
+#define FPS 120
 #define FRAME_TARGET_TIME (1000 / FPS)
 #define dprintINT(expr) printf(#expr " = %d\n", expr)
 #define dprintF(expr) printf(#expr " = %g\n", expr)
@@ -50,9 +50,9 @@ Uint32 previous_frame_time = 0;
 SDL_Color fps_color;
 
 float scale = 2;
-float damping = 0.9;
+float damping = 0.98;
 Mat buffer1, buffer2, temp;
-int rows, cols;
+int rows, cols, left_button_pressed = 0;
 
 int main()
 {
@@ -144,8 +144,9 @@ void setup(void)
     buffer2 = mat_alloc(rows, cols);
     temp = mat_alloc(rows, cols);
 
-    mat_fill(buffer1, 0);
-    mat_rand(buffer1, 0, 1);
+    // mat_fill(buffer1, 0);
+    // mat_rand(buffer1, 0, 1);
+    // MAT_AT(buffer1, rows/2, cols/2) = 1;
 
     for (int x = 0; x < rows; x++) {
         for (int y = 0; y < cols; y++) {
@@ -183,6 +184,16 @@ void process_input(void)
                     }
                 }
                 break;
+            case SDL_MOUSEBUTTONDOWN:
+                if (event.button.button == SDL_BUTTON_LEFT) {
+                    left_button_pressed = 1;
+                }
+                break;
+            case SDL_MOUSEBUTTONUP:
+                if (event.button.button == SDL_BUTTON_LEFT) {
+                    left_button_pressed = 0;
+                }
+                break;
         }
     }
 }
@@ -201,6 +212,16 @@ void update(void)
     SDL_FreeSurface(text_surface);
 
     /*----------------------------------------------------------------------------*/
+
+    int mouse_x, mouse_y;
+
+    if (left_button_pressed) {
+        /*test*/
+        // printf("left\n");
+        /*test*/
+        SDL_GetMouseState(&mouse_x, &mouse_y);
+        MAT_AT(buffer1, (int)(mouse_y/scale), (int)(mouse_x/scale)) = 1;
+    }
 
     for (int x = 1; x < rows -1; x++) {
         for (int y = 1; y < cols -1; y++) {
