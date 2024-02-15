@@ -13,9 +13,9 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_ttf.h>
 
-#define WINDOW_WIDTH 800
-#define WINDOW_HEIGHT 800
-#define FPS 120
+#define WINDOW_WIDTH 1600
+#define WINDOW_HEIGHT 1000
+#define FPS 50
 #define FRAME_TARGET_TIME (1000 / FPS)
 #define dprintINT(expr) printf(#expr " = %d\n", expr)
 #define dprintF(expr) printf(#expr " = %g\n", expr)
@@ -49,8 +49,8 @@ Uint32 previous_frame_time = 0;
 
 SDL_Color fps_color;
 
-float scale = 2;
-float damping = 0.98;
+float scale = 4;
+float damping = 0.95;
 Mat buffer1, buffer2, temp;
 int rows, cols, left_button_pressed = 0;
 
@@ -137,19 +137,19 @@ void setup(void)
     // fps_color.g = 179;
     // fps_color.r = 60;
 
-    rows = WINDOW_WIDTH/scale;
-    cols = WINDOW_HEIGHT/scale;
+    rows = (int)(WINDOW_HEIGHT/scale);
+    cols = (int)(WINDOW_WIDTH/scale);
 
     buffer1 = mat_alloc(rows, cols);
     buffer2 = mat_alloc(rows, cols);
     temp = mat_alloc(rows, cols);
 
-    // mat_fill(buffer1, 0);
+    mat_fill(buffer1, 0);
     // mat_rand(buffer1, 0, 1);
     // MAT_AT(buffer1, rows/2, cols/2) = 1;
 
-    for (int x = 0; x < rows; x++) {
-        for (int y = 0; y < cols; y++) {
+    for (int x = 0; x < cols; x++) {
+        for (int y = 0; y < rows; y++) {
             MAT_AT(buffer2, y, x) = MAT_AT(buffer1, y, x);
         }
     }
@@ -221,14 +221,23 @@ void update(void)
         /*test*/
         SDL_GetMouseState(&mouse_x, &mouse_y);
         MAT_AT(buffer1, (int)(mouse_y/scale), (int)(mouse_x/scale)) = 1;
+      /*MAT_AT(buffer1, (int)(mouse_y/scale-1), (int)(mouse_x/scale)) = 0;
+        MAT_AT(buffer1, (int)(mouse_y/scale+1), (int)(mouse_x/scale)) = 0;
+        MAT_AT(buffer1, (int)(mouse_y/scale), (int)(mouse_x/scale+1)) = 0;
+        MAT_AT(buffer1, (int)(mouse_y/scale), (int)(mouse_x/scale-1)) = 0;*/
     }
 
-    for (int x = 1; x < rows -1; x++) {
-        for (int y = 1; y < cols -1; y++) {
+    for (int x = 1; x < cols -1; x++) {
+        for (int y = 1; y < rows -1; y++) {
             MAT_AT(buffer2, y, x) = (MAT_AT(buffer1, y-1, x) + 
                                      MAT_AT(buffer1, y+1, x) + 
                                      MAT_AT(buffer1, y, x+1) + 
-                                     MAT_AT(buffer1, y, x-1)) / 2 - MAT_AT(buffer2, y, x);
+                                     MAT_AT(buffer1, y, x-1)) / 2 /*+ 
+                                    (MAT_AT(buffer1, y-1, x-1) + 
+                                     MAT_AT(buffer1, y+1, x+1) + 
+                                     MAT_AT(buffer1, y-1, x+1) + 
+                                     MAT_AT(buffer1, y+1, x-1)) / 2*/ - MAT_AT(buffer2, y, x); 
+
             MAT_AT(buffer2, y, x) = MAT_AT(buffer2, y, x) * damping;
         }
     }
