@@ -1,3 +1,8 @@
+/* This program is inspired by The Coding Train's video 'Coding Challenge 102: 2D Water Ripple'.
+You can find the video here:
+https://youtu.be/BZUdGqeOD0w .*/
+
+
 #define STDIO
 #include <stdio.h>
 
