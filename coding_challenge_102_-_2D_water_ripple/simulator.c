@@ -18,9 +18,9 @@ https://youtu.be/BZUdGqeOD0w .*/
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_ttf.h>
 
-#define WINDOW_WIDTH 1600
-#define WINDOW_HEIGHT 1000
-#define FPS 50
+#define WINDOW_WIDTH 1600/1
+#define WINDOW_HEIGHT 1000/1
+#define FPS 100
 #define FRAME_TARGET_TIME (1000 / FPS)
 #define dprintINT(expr) printf(#expr " = %d\n", expr)
 #define dprintF(expr) printf(#expr " = %g\n", expr)
@@ -35,6 +35,7 @@ void render(void);
 void destroy_window(void);
 void fix_framerate(void);
 void show_mat(SDL_Renderer * renderer, Mat m);
+float liniar_map(float s, float min_in, float max_in, float min_out, float max_out);
 
 SDL_Window *window = NULL;
 SDL_Renderer *renderer = NULL;
@@ -54,10 +55,11 @@ Uint32 previous_frame_time = 0;
 
 SDL_Color fps_color;
 
-float scale = 4;
-float damping = 0.95;
+float scale = 5;
+float damping = 0.99;
 Mat buffer1, buffer2, temp;
 int rows, cols, left_button_pressed = 0;
+SDL_Rect rect;
 
 int main()
 {
@@ -290,11 +292,11 @@ void fix_framerate(void)
 
 void show_mat(SDL_Renderer * renderer, Mat m)
 {
-    SDL_Rect rect;
     for (int row = 0; row < rows; row++) {
         for (int col = 0; col < cols; col++) {
             float value = MAT_AT(m, row, col);
-            SDL_SetRenderDrawColor(renderer, 255 * value, 255 * value, 255 * value, 255);
+            value = liniar_map(value, 0, 3, 0.2, 1);
+            SDL_SetRenderDrawColor(renderer, 100 * value, 200 * value, 255 * value, 255);
             rect.x = col * scale;
             rect.y = row * scale;
             rect.h = scale;
@@ -303,4 +305,9 @@ void show_mat(SDL_Renderer * renderer, Mat m)
             SDL_RenderFillRect(renderer, &rect);
         }
     }
+}
+
+float liniar_map(float s, float min_in, float max_in, float min_out, float max_out)
+{
+    return (min_out + ((s-min_in)*(max_out-min_out))/(max_in-min_in));
 }
