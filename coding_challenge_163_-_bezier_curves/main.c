@@ -8,7 +8,8 @@
 #include "Vec2.h"
 
 float lerp(float x0, float x1, float t);
-float quad_bezier(float end1, float control, float end2, float t);
+Vec2 quad_bezier(Vec2 end1, Vec2 control, Vec2 end2, float t);
+Vec2 cubic_bezier(Vec2 end1, Vec2 control1, Vec2 control2, Vec2 end2, float t);
 
 void setup(void)
 {
@@ -27,13 +28,13 @@ void render(void)
 
     v0 = vec2_new(50, 300);
     v1 = vec2_new(700, 200);
-    v2 = vec2_new(200, 500);
+    v3 = vec2_new(700, 500);
 
     if (left_button_pressed) {
         SDL_GetMouseState(&mouseX, &mouseY);
-        v3 = vec2_new(mouseX, mouseY);
+        v2 = vec2_new(mouseX, mouseY);
     } else {
-        v3 = vec2_new(700, 500);
+        v2 = vec2_new(200, 500);
     }
 
     SDL_SetRenderDrawColor(renderer, Hex2ARGB(0xFF00FFFF));
@@ -43,19 +44,14 @@ void render(void)
     fill_circle(renderer, v3, 4);
 
     SDL_SetRenderDrawColor(renderer, Hex2ARGB(0xFFFFFFFF));
-    for (float t = 0; t <= 1; t += 0.025) {
+    for (float t = 0; t <= 1; t += 0.005) {
         // int x1 = lerp(v0.x, v2.x, t);
         // int x2 = lerp(v2.x, v1.x, t);
         // int y1 = lerp(v0.y, v2.y, t);
         // int y2 = lerp(v2.y, v1.y, t);
         // SDL_RenderDrawLine(renderer, x1, y1, x2, y2);
-        int x1 = quad_bezier(v0.x, v2.x, v3.x, t);
-        int y1 = quad_bezier(v0.y, v2.y, v3.y, t);
-        int x2 = quad_bezier(v2.x, v3.x, v1.x, t);
-        int y2 = quad_bezier(v2.y, v3.y, v1.y, t);
-        int x = (int)lerp(x1, x2, t);
-        int y = (int)lerp(y1, y2, t);
-        SDL_RenderDrawPoint(renderer, x, y);
+        Vec2 v = cubic_bezier(v0, v2, v3, v1, t);
+        SDL_RenderDrawPoint(renderer, v.x, v.y);
     }
     // SDL_RenderDrawLine(renderer, v2.x, v2.y, v1.x, v1.y);
 }
@@ -65,7 +61,21 @@ float lerp(float x0, float x1, float t)
     return x0 + (x1 - x0) * t;
 }
 
-float quad_bezier(float end1, float control, float end2, float t)
+Vec2 quad_bezier(Vec2 end1, Vec2 control, Vec2 end2, float t)
 {
-        return lerp(lerp(end1, control, t), lerp(control, end2, t), t);
+    Vec2 v;
+    v.x = lerp(lerp(end1.x, control.x, t), lerp(control.x, end2.x, t), t);
+    v.y = lerp(lerp(end1.y, control.y, t), lerp(control.y, end2.y, t), t);
+    return v;
+}
+
+Vec2 cubic_bezier(Vec2 end1, Vec2 control1, Vec2 control2, Vec2 end2, float t)
+{
+    Vec2 temp1 = quad_bezier(end1, control1, control2, t);
+    Vec2 temp2 = quad_bezier(control1, control2, end2, t);
+    Vec2 v;
+    v.x = (int)lerp(temp1.x, temp2.x, t);
+    v.y = (int)lerp(temp1.y, temp2.y, t);
+
+    return v;
 }
