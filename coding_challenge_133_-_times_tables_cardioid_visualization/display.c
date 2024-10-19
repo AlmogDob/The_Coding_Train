@@ -32,6 +32,7 @@ void fix_framerate(void);
 void setup(void);
 void update(void);
 void render(void);
+float liniar_map(float s, float min_in, float max_in, float min_out, float max_out);
 
 SDL_Window *window = NULL;
 SDL_Renderer *renderer = NULL;
@@ -48,6 +49,15 @@ float fps = 0;
 int space_bar_was_pressed = 0;
 int to_render = 1;
 int to_update = 1;
+Uint32 previous_frame_time = 0;
+
+SDL_Color fps_color;
+
+float scale = 5;
+float damping = 0.99;
+Mat buffer1, buffer2, temp;
+int rows, cols, left_button_pressed = 0;
+SDL_Rect rect;
 size_t previous_frame_time = 0;
 int left_button_pressed = 0;
 int to_limit_fps = 1;
@@ -254,3 +264,25 @@ void render(void) {}
 #endif
 
 
+
+void show_mat(SDL_Renderer * renderer, Mat m)
+{
+    for (int row = 0; row < rows; row++) {
+        for (int col = 0; col < cols; col++) {
+            float value = MAT_AT(m, row, col);
+            value = liniar_map(value, 0, 3, 0.2, 1);
+            SDL_SetRenderDrawColor(renderer, 100 * value, 200 * value, 255 * value, 255);
+            rect.x = col * scale;
+            rect.y = row * scale;
+            rect.h = scale;
+            rect.w = scale;
+            // SDL_RenderDrawPoint(renderer, row * scale, col * scale);
+            SDL_RenderFillRect(renderer, &rect);
+        }
+    }
+}
+
+float liniar_map(float s, float min_in, float max_in, float min_out, float max_out)
+{
+    return (min_out + ((s-min_in)*(max_out-min_out))/(max_in-min_in));
+}
