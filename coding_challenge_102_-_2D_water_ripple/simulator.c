@@ -295,8 +295,8 @@ void show_mat(SDL_Renderer * renderer, Mat m)
     for (int row = 0; row < rows; row++) {
         for (int col = 0; col < cols; col++) {
             float value = MAT_AT(m, row, col);
-            value = liniar_map(value, 0, 3, 0.2, 1);
-            SDL_SetRenderDrawColor(renderer, 100 * value, 200 * value, 255 * value, 255);
+            // value = liniar_map(value, 0, 3, 0.2, 1);
+            SDL_SetRenderDrawColor(renderer, 255 * value, 255 * value, 255 * value, 255);
             rect.x = col * scale;
             rect.y = row * scale;
             rect.h = scale;
