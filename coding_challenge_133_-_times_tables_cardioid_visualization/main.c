@@ -8,6 +8,7 @@
 #define VEC2_IMPLEMENTATION
 #include "Vec2.h"
 #include "Almog_Dynamic_Array.h"
+#include <math.h>
 
 typedef struct {
     size_t length;
