@@ -16,7 +16,8 @@ typedef struct {
 } ada_Vec2_array;
 
 Vec2 a;
-int num_of_points = 200, factor = 2;
+int num_of_points = 200;
+float factor = 2;
 float r;
 ada_Vec2_array points;
 
@@ -61,6 +62,6 @@ void render(void)
 
     SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
     for (size_t i = 0; i < points.length; i++) {
-        SDL_RenderDrawLine(renderer, points.elements[i].x, points.elements[i].y, points.elements[(i*factor)%points.length].x, points.elements[(i*factor)%points.length].y);
+        SDL_RenderDrawLine(renderer, points.elements[i].x, points.elements[i].y, points.elements[(int)(i*factor)%points.length].x, points.elements[(int)(i*factor)%points.length].y);
     }
 }
