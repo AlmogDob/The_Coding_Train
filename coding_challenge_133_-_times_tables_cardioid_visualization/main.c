@@ -17,7 +17,7 @@ typedef struct {
 
 Vec2 a;
 int num_of_points = 200;
-float factor = 2;
+float factor = 3;
 float r;
 ada_Vec2_array points;
 
