@@ -39,7 +39,7 @@ void setup(void)
 void update(void)
 {
     a = vec2_new((int)window_width/2, (int)window_height/2);
-    r = window_height/2;
+    r = fminf((int)window_height, (int)window_width)/2; 
     float delta = 2*PI / num_of_points;
 
     for (size_t i = 0; i < points.length; i++) {
