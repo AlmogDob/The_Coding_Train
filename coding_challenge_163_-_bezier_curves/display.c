@@ -52,7 +52,7 @@ int to_render = 1;
 int to_update = 1;
 size_t previous_frame_time = 0;
 int left_button_pressed = 0;
-int to_limit_fps = 1;
+int limit_fps = 1;
 int window_width, window_height;
 
 int main()
@@ -232,7 +232,7 @@ void fix_framerate(void)
     int time_ellapsed = SDL_GetTicks() - previous_frame_time;
     int time_to_wait = FRAME_TARGET_TIME - time_ellapsed;
     if (time_to_wait > 0 && time_to_wait < FRAME_TARGET_TIME) {
-        if (to_limit_fps) {
+        if (limit_fps) {
             SDL_Delay(time_to_wait);
         }
     }

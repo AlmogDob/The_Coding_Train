@@ -13,7 +13,7 @@ Vec2 cubic_bezier(Vec2 end1, Vec2 control1, Vec2 control2, Vec2 end2, float t);
 
 void setup(void)
 {
-
+    limit_fps = 0;
 }
 
 void update(void)
