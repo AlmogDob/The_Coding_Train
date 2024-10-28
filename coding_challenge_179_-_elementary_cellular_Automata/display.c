@@ -4,11 +4,11 @@
 #include <math.h>
 
 #ifndef WINDOW_WIDTH
-#define WINDOW_WIDTH 800
+#define WINDOW_WIDTH 2400
 #endif
 
 #ifndef WINDOW_HEIGHT
-#define WINDOW_HEIGHT 600
+#define WINDOW_HEIGHT 1200
 #endif
 
 #ifndef FPS
@@ -17,6 +17,7 @@
 
 #define FRAME_TARGET_TIME (1000 / FPS)
 #define dprintINT(expr) printf(#expr " = %d\n", expr)
+#define dprintSIZE_T(expr) printf(#expr " = %zu\n", expr)
 #define dprintF(expr) printf(#expr " = %g\n", expr)
 #define Hex2ARGB(x) (x>>(8*0)&0xFF), (x>>(8*1)&0xFF), (x>>(8*2)&0xFF), (x>>(8*3)&0xFF)
 
@@ -51,6 +52,7 @@ int space_bar_was_pressed = 0;
 int to_render = 1;
 int to_update = 1;
 size_t previous_frame_time = 0;
+int to_clear_window = 1;
 int left_button_pressed = 0;
 int limit_fps = 1;
 int window_width, window_height;
@@ -207,8 +209,16 @@ void update_window(void)
 
 void render_window(void)
 {
-    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
-    SDL_RenderClear(renderer);
+    static int first_time_in_renderer = 1;
+    if (first_time_in_renderer) {
+        SDL_SetRenderDrawColor(renderer, 0x1E, 0x1E, 0x1E, 255);
+        SDL_RenderClear(renderer);
+        first_time_in_renderer = 0;
+    }
+    if (to_clear_window) {
+        SDL_SetRenderDrawColor(renderer, 0x1E, 0x1E, 0x1E, 255);
+        SDL_RenderClear(renderer);
+    }
     /*------------------------------------------------------------------------*/
 
     render();
