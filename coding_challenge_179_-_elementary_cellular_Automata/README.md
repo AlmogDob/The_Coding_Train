@@ -1,1 +1,1 @@
-https://mathworld.wolfram.com/CellularAutomaton.html
+https://mathworld.wolfram.com/ElementaryCellularAutomaton.html
